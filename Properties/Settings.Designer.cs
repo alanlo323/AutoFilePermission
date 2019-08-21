@@ -34,5 +34,17 @@ namespace AutoFilePermission.Properties {
                 this["_path"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool auto_permission {
+            get {
+                return ((bool)(this["auto_permission"]));
+            }
+            set {
+                this["auto_permission"] = value;
+            }
+        }
     }
 }

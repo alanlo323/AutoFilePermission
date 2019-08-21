@@ -24,8 +24,8 @@ namespace AutoFilePermission
                 IncludeSubdirectories = true,
             };
             FileSystemEventHandler fseh = new FileSystemEventHandler(FileSystemWatcherOnChanged);
-            fsw.Created += fseh;
             fsw.Changed += fseh;
+            fsw.Created += fseh;
             fsw.Renamed += new RenamedEventHandler(FileSystemWatcherOnRenamed);
             fsw.Deleted += new FileSystemEventHandler(FileSystemWatcherOnDeleted);
 
@@ -47,7 +47,10 @@ namespace AutoFilePermission
             string path = e.FullPath;
             try
             {
-                //GrantAccess(path);
+                if (cbAutoPermission.Checked)
+                {
+                    GrantAccess(path);
+                }
             }
             catch { }
             this.Invoke((MethodInvoker)delegate
@@ -61,7 +64,10 @@ namespace AutoFilePermission
             string path = e.FullPath;
             try
             {
-                //GrantAccess(path);
+                if (cbAutoPermission.Checked)
+                {
+                    GrantAccess(path);
+                }
             }
             catch { }
             this.Invoke((MethodInvoker)delegate
@@ -111,6 +117,12 @@ namespace AutoFilePermission
             rtbLog.SelectionStart = rtbLog.Text.Length;
             // scroll it automatically
             rtbLog.ScrollToCaret();
+        }
+
+        private void CbAutoPermission_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.auto_permission = cbAutoPermission.Checked;
+            Properties.Settings.Default.Save();
         }
     }
 }
