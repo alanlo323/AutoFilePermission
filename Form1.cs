@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -38,7 +39,7 @@ namespace AutoFilePermission
             string path = e.FullPath;
             this.Invoke((MethodInvoker)delegate
             {
-                rtbLog.Text += DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " " + e.ChangeType + " " + path + "\n";
+                AppendFilesLog(path, e.ChangeType);
             });
         }
 
@@ -55,7 +56,7 @@ namespace AutoFilePermission
             catch { }
             this.Invoke((MethodInvoker)delegate
             {
-                rtbLog.Text += DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " " + e.ChangeType + " " + path + "\n";
+                AppendFilesLog(path, e.ChangeType);
             });
         }
 
@@ -72,8 +73,35 @@ namespace AutoFilePermission
             catch { }
             this.Invoke((MethodInvoker)delegate
             {
-                rtbLog.Text += DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " " + e.ChangeType + " " + path + "\n";
+                AppendFilesLog(path, e.ChangeType);
             });
+        }
+        private void AppendFilesLog(string path, WatcherChangeTypes changeTypes)
+        {
+            rtbLog.SelectionColor = Color.Black;
+            rtbLog.SelectedText += DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " ";
+            switch (changeTypes)
+            {
+                case WatcherChangeTypes.Created:
+                    rtbLog.SelectionColor = Color.Green;
+                    break;
+                case WatcherChangeTypes.Deleted:
+                    rtbLog.SelectionColor = Color.Red;
+                    break;
+                case WatcherChangeTypes.Changed:
+                    rtbLog.SelectionColor = Color.DarkGray;
+                    break;
+                case WatcherChangeTypes.Renamed:
+                    rtbLog.SelectionColor = Color.Blue;
+                    break;
+                case WatcherChangeTypes.All:
+                    break;
+                default:
+                    break;
+            }
+            rtbLog.SelectedText += changeTypes;
+            rtbLog.SelectionColor = Color.Black;
+            rtbLog.SelectedText += " file://" + path + "\n";
         }
 
         private void BtnStart_Click(object sender, EventArgs e)
@@ -123,6 +151,15 @@ namespace AutoFilePermission
         {
             Properties.Settings.Default.auto_permission = cbAutoPermission.Checked;
             Properties.Settings.Default.Save();
+        }
+
+        private void RtbLog_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(e.LinkText);
+            }
+            catch (Exception) { }
         }
     }
 }

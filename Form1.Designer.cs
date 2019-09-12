@@ -74,6 +74,7 @@
             this.rtbLog.Size = new System.Drawing.Size(504, 185);
             this.rtbLog.TabIndex = 4;
             this.rtbLog.Text = "";
+            this.rtbLog.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.RtbLog_LinkClicked);
             this.rtbLog.TextChanged += new System.EventHandler(this.RtbLog_TextChanged);
             // 
             // cbAutoPermission
