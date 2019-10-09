@@ -9,7 +9,13 @@ namespace AutoFilePermission
 {
     public partial class Form1 : Form
     {
+        readonly string FILES_MODIFIED = "Files modified";
+        readonly string LAST_RECORDED = "Last recorded";
+
         FileSystemWatcher fsw;
+        int filesModified = 0;
+        string datetimeFormate = "yyyy-MM-dd HH:mm:ss";
+        DateTime lastRecorded;
         public Form1()
         {
             InitializeComponent();
@@ -31,6 +37,8 @@ namespace AutoFilePermission
             fsw.Deleted += new FileSystemEventHandler(FileSystemWatcherOnDeleted);
 
             labMsg.Text = "No service is running";
+            labFilesModified.Text = FILES_MODIFIED + " : " + filesModified ;
+            labLastRecorded.Text = LAST_RECORDED + " : " + "No record";
             btnStop.Enabled = false;
         }
 
@@ -78,30 +86,37 @@ namespace AutoFilePermission
         }
         private void AppendFilesLog(string path, WatcherChangeTypes changeTypes)
         {
-            rtbLog.SelectionColor = Color.Black;
-            rtbLog.SelectedText += DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " ";
-            switch (changeTypes)
+            lastRecorded = DateTime.Now;
+            labFilesModified.Text = FILES_MODIFIED + " : " + filesModified;
+            labLastRecorded.Text = LAST_RECORDED + " : " + lastRecorded.ToString(datetimeFormate);
+
+            if (cbShowLog.Checked)
             {
-                case WatcherChangeTypes.Created:
-                    rtbLog.SelectionColor = Color.Green;
-                    break;
-                case WatcherChangeTypes.Deleted:
-                    rtbLog.SelectionColor = Color.Red;
-                    break;
-                case WatcherChangeTypes.Changed:
-                    rtbLog.SelectionColor = Color.DarkGray;
-                    break;
-                case WatcherChangeTypes.Renamed:
-                    rtbLog.SelectionColor = Color.Blue;
-                    break;
-                case WatcherChangeTypes.All:
-                    break;
-                default:
-                    break;
+                rtbLog.SelectionColor = Color.Black;
+                rtbLog.SelectedText += DateTime.Now.ToString(datetimeFormate) + " ";
+                switch (changeTypes)
+                {
+                    case WatcherChangeTypes.Created:
+                        rtbLog.SelectionColor = Color.Green;
+                        break;
+                    case WatcherChangeTypes.Deleted:
+                        rtbLog.SelectionColor = Color.Red;
+                        break;
+                    case WatcherChangeTypes.Changed:
+                        rtbLog.SelectionColor = Color.DarkGray;
+                        break;
+                    case WatcherChangeTypes.Renamed:
+                        rtbLog.SelectionColor = Color.Blue;
+                        break;
+                    case WatcherChangeTypes.All:
+                        break;
+                    default:
+                        break;
+                }
+                rtbLog.SelectedText += changeTypes;
+                rtbLog.SelectionColor = Color.Black;
+                rtbLog.SelectedText += " file://" + path + "\n";
             }
-            rtbLog.SelectedText += changeTypes;
-            rtbLog.SelectionColor = Color.Black;
-            rtbLog.SelectedText += " file://" + path + "\n";
         }
 
         private void BtnStart_Click(object sender, EventArgs e)
@@ -137,6 +152,7 @@ namespace AutoFilePermission
             DirectorySecurity dSecurity = dInfo.GetAccessControl();
             dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
             dInfo.SetAccessControl(dSecurity);
+            filesModified++;
         }
 
         private void RtbLog_TextChanged(object sender, EventArgs e)
@@ -160,6 +176,12 @@ namespace AutoFilePermission
                 System.Diagnostics.Process.Start(e.LinkText);
             }
             catch (Exception) { }
+        }
+
+        private void CbShowLog_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.show_log = cbShowLog.Checked;
+            Properties.Settings.Default.Save();
         }
     }
 }
